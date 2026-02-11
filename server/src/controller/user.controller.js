@@ -1,13 +1,18 @@
-const mongoose = require("mongoose");
 const User = require("../../src/models/userModel");
 const { successResponse } = require("./res.controller");
 const createError = require("http-errors");
+const {
+  getUsers,
+  getUser,
+  deleteUserById,
+  updatedUserById,
+  createUser,
+} = require("../services/user.service");
 
 const handleCreateUser = async (req, res, next) => {
   try {
     const { name, email, password } = req.body;
-    const userData = { name, email, password };
-    const user = await User.create(userData);
+    const user = await createUser(name, email, password);
     return successResponse(res, {
       statusCode: 200,
       message: "User create successfully",
@@ -20,39 +25,20 @@ const handleCreateUser = async (req, res, next) => {
 const handleGetUsers = async (req, res, next) => {
   try {
     const { search } = req.query;
-    let filter = {};
-    if (search) {
-      filter = {
-        $or: [
-          { name: { $regex: search, $options: "i" } },
-          { email: { $regex: search, $options: "i" } },
-        ],
-      };
-    }
-    const users = await User.find(filter).select("-password");
-    const totalUsers = await User.countDocuments(filter);
+    const result = await getUsers(search);
     return successResponse(res, {
       statusCode: 200,
       message: "Users return successfully",
-      payload: {
-        totalUsers,
-        users,
-      },
+      payload: { result },
     });
   } catch (error) {
     next(error);
   }
 };
-const handleGetUser = async (req, res, next) => {
+const handleGetUserByID = async (req, res, next) => {
   try {
-    const { id } = req.params;
-    if (!mongoose.Types.ObjectId.isValid(id)) {
-      throw createError(400, "Invalid user id");
-    }
-    const user = await User.findById(id).select("-password").lean();
-    if (!user) {
-      throw createError(404, "User not found");
-    }
+    const { id, options } = req.params;
+    const user = await getUser(id, options);
     return successResponse(res, {
       statusCode: 200,
       message: "User return successfully",
@@ -74,13 +60,10 @@ const handleDeleteUsers = async (req, res, next) => {
     next(error);
   }
 };
-const handleDeleteUser = async (req, res, next) => {
+const handleDeleteUserByID = async (req, res, next) => {
   try {
     const { id } = req.params;
-    if (!mongoose.Types.ObjectId.isValid(id)) {
-      throw createError(400, "Invalid user id");
-    }
-    await User.findByIdAndDelete(id);
+    await deleteUserById(id);
     return successResponse(res, {
       statusCode: 200,
       message: "User delete successfully",
@@ -89,25 +72,15 @@ const handleDeleteUser = async (req, res, next) => {
     next(error);
   }
 };
-const handleUpdatedUser = async (req, res, next) => {
+const handleUpdatedUserByID = async (req, res, next) => {
   try {
     const { id } = req.params;
-    const { name } = req.body;
-    if (!mongoose.Types.ObjectId.isValid(id)) {
-      throw createError(400, "Invalid user id");
-    }
-    if (!name) {
-      throw createError(404, "Name is required");
-    }
-    const updatedUser = await User.findByIdAndUpdate(
-      id,
-      { name },
-      { new: true, runValidators: true },
-    ).select("-password");
+    const { name, email } = req.body;
+    const result = await updatedUserById(id, name, email);
     return successResponse(res, {
       statusCode: 200,
       message: "User updated successfully",
-      payload: { updatedUser },
+      payload: { result },
     });
   } catch (error) {
     next(error);
@@ -117,8 +90,8 @@ const handleUpdatedUser = async (req, res, next) => {
 module.exports = {
   handleCreateUser,
   handleGetUsers,
-  handleGetUser,
+  handleGetUserByID,
   handleDeleteUsers,
-  handleDeleteUser,
-  handleUpdatedUser,
+  handleDeleteUserByID,
+  handleUpdatedUserByID,
 };
