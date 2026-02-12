@@ -50,11 +50,13 @@ const handleGetUserByID = async (req, res, next) => {
 };
 const handleDeleteUsers = async (req, res, next) => {
   try {
-    await User.deleteMany();
+    const result = await User.deleteMany({ isAdmin: false });
     return successResponse(res, {
       statusCode: 200,
       message: "Users Deleted successfully",
-      payload: {},
+      payload: {
+        delete_users: result.deletedCount,
+      },
     });
   } catch (error) {
     next(error);

@@ -48,10 +48,14 @@ const deleteUserById = async (id) => {
     if (!mongoose.Types.ObjectId.isValid(id)) {
       throw createError(400, "Invalid user id");
     }
-    const user = await User.findByIdAndDelete(id);
+    const user = await User.findById(id);
     if (!user) {
       throw createError(404, "User not found");
     }
+    if (user.isAdmin) {
+      throw createError(403, "Admin cannot be deleted");
+    }
+    await user.deleteOne();
     return user;
   } catch (error) {
     throw error;
