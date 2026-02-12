@@ -4,9 +4,16 @@ const createError = require("http-errors");
 
 const createUser = async (name, email, password) => {
   try {
-    const userData = { name, email, password };
-    const user = await User.create(userData);
-    return user;
+    const userExists = await User.findOne({ email: email });
+    if (userExists) {
+      throw createError(400, "Email already exists");
+    }
+    const newUser = await User.create({
+      name,
+      email,
+      password,
+    });
+    return newUser;
   } catch (error) {
     throw error;
   }
