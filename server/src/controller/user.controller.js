@@ -1,6 +1,7 @@
 const User = require("../../src/models/userModel");
-const { successResponse } = require("./res.controller");
-const createError = require("http-errors");
+const { successResponse } = require("../controller/res.controller");
+const Note = require("../models/noteModel");
+
 const {
   getUsers,
   getUser,
@@ -77,12 +78,19 @@ const handleDeleteUserByID = async (req, res, next) => {
 const handleUpdatedUserByID = async (req, res, next) => {
   try {
     const { id } = req.params;
-    const { name, email } = req.body;
-    const result = await updatedUserById(id, name, email);
+    const { title, description, image } = req.body;
+    const updatedNote = await Note.findByIdAndUpdate(
+      id,
+      { title, description, image },
+      { new: true, runValidators: true },
+    );
+    if (!updatedUser) {
+      throw createError(404, "User not found");
+    }
     return successResponse(res, {
       statusCode: 200,
       message: "User updated successfully",
-      payload: { result },
+      payload: updatedNote,
     });
   } catch (error) {
     next(error);
