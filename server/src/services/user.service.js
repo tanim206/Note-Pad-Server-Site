@@ -73,11 +73,11 @@ const updatedUserById = async (id, name, email) => {
     if (!mongoose.Types.ObjectId.isValid(id)) {
       throw createError(400, "Invalid user id");
     }
-    if (email) {
-      throw createError(400, "Email cannot be updated");
-    }
     if (!name) {
       throw createError(404, "Name is required");
+    }
+    if (!email) {
+      throw createError(400, "Email cannot be updated");
     }
     const updatedUser = await User.findByIdAndUpdate(
       id,

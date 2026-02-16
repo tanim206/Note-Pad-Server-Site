@@ -1,3 +1,4 @@
+require("dotenv").config(); // সবথেকে উপরের দিকে রাখো
 const app = require("./app");
 const dataBaseConnect = require("./config/dataBase");
 const { serverPort } = require("./secret");

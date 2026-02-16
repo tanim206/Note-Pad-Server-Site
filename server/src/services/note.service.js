@@ -3,13 +3,13 @@ const createError = require("http-errors");
 const Note = require("../models/noteModel");
 
 const createNote = async (title, description, image) => {
-  try {
-    const noteData = { title, description, image };
-    const note = await Note.create(noteData);
-    return note;
-  } catch (error) {
-    throw error;
-  }
+  const note = await Note.create({
+    title,
+    description,
+    image,
+  });
+
+  return note;
 };
 const getNotes = async (search) => {
   try {

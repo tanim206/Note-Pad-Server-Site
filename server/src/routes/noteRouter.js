@@ -8,10 +8,16 @@ const {
   handleDeleteNoteByID,
   handleUpdateNoteByID,
 } = require("../controller/note.controller");
+const uploadNoteImage = require("../utils/upload");
 const upload = multer();
+
 const noteRouter = express.Router();
 
-noteRouter.post("/create-note", upload.none(), handleCreateNote);
+noteRouter.post(
+  "/create-note",
+  uploadNoteImage.single("image"),
+  handleCreateNote,
+);
 noteRouter.get("/", handleGetNotes);
 noteRouter.delete("/", handleDeleteNotes);
 noteRouter.get("/:id", handleGetNoteByID);
