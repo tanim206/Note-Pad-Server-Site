@@ -9,6 +9,7 @@ const {
   handleUpdateNoteByID,
 } = require("../controller/note.controller");
 const uploadNoteImage = require("../utils/upload");
+
 const upload = multer();
 
 const noteRouter = express.Router();
@@ -22,6 +23,6 @@ noteRouter.get("/", handleGetNotes);
 noteRouter.delete("/", handleDeleteNotes);
 noteRouter.get("/:id", handleGetNoteByID);
 noteRouter.delete("/:id", handleDeleteNoteByID);
-noteRouter.put("/:id", upload.none(), handleUpdateNoteByID);
+noteRouter.put("/:id", upload.single("image"), handleUpdateNoteByID);
 
 module.exports = noteRouter;

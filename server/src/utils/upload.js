@@ -1,6 +1,16 @@
 const multer = require("multer");
+const path = require("path");
 
-const storage = multer.memoryStorage(); // image RAM এ রাখে, disk এ না
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, "public/notes");
+  },
+
+  filename: function (req, file, cb) {
+    const uniqueName = Date.now() + path.extname(file.originalname);
+    cb(null, uniqueName);
+  },
+});
 
 const uploadNoteImage = multer({ storage });
 
